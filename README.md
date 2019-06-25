@@ -1,10 +1,10 @@
 <div align="center">
-  <h1 align="center">
-  🐍 Slatt
-  </h1>
-  <p align="center">
-    Another form library to use with React, yes!
-  </p>
+<h1 align="center">
+🐍 Slatt
+</h1>
+<p align="center">
+  Another form library to use with React? Oh, please!
+</p>
 </div>
 
 <p align="center">
@@ -15,13 +15,76 @@
 
 ## Another form library? Oh, please!
 
-It is difficult to grow, manage and measure the impact of online communities. Community owners need modern, chat-based communities but are running into scaling issues when their community grows beyond a few hundred members. It becomes hard to keep track of who's who, know what conversations are happening, and ensure that the community is staying healthy and productive.
+I'm just trying to understand how to use custom hooks to deal with forms in React, I was boring so I thought "why not create another form library?".
 
+Feel free to contribute though, the next step of this library is to add validate, find a way that we can validate the object passed as `initialValues`.
+
+## Getting Started
+
+To get it started, add `react-use-form-state` to your project:
+
+```
+npm install --save slatt
+```
+
+This library requires `react@^16.8.0` as a peer dependency.
 
 ## Usage
 
-It is difficult to grow, manage and measure the impact of online communities. Community owners need modern, chat-based communities but are running into scaling issues when their community grows beyond a few hundred members. It becomes hard to keep track of who's who, know what conversations are happening, and ensure that the community is staying healthy and productive.
+```jsx
+import  React  from  "react";
+import { useSlatt } from "slatt";
 
-## Content
+const  initialValues  =  {
+	name:  "",
+	lastName:  "",
+	age:  0
+};
 
-It is difficult to grow, manage and measure the impact of online communities. Community owners need modern, chat-based communities but are running into scaling issues when their community grows beyond a few hundred members. It becomes hard to keep track of who's who, know what conversations are happening, and ensure that the community is staying healthy and productive.
+const  App  =  ()  =>  {
+	const {
+		values,
+		errors,
+		touched,
+		handleChange,
+		handleBlur,
+		handleSubmit
+	} =  useSlatt({
+		initialValues,
+		onSubmit:  values  =>  console.log({  values  })
+	});
+
+	return  (
+		<form  onSubmit={handleSubmit} className="App">
+			<h1>Custom Forms with Hooks</h1>
+			<label>Name</label>
+			<input
+				type="text"
+				name="name"
+				onChange={handleChange}
+				value={values.name}
+			/>
+			<br  />
+			<label>Lastname</label>
+			<input
+				type="text"
+				name="lastName"
+				onChange={handleChange}
+				value={values.lastName}
+			/>
+			<br  />
+			<label>Age</label>
+			<input
+				type="number"
+				name="age"
+				onChange={handleChange}
+				value={values.age}
+			/>
+			<br  />
+			<button  type="submit">Submit</button>
+		</form>
+	);
+};
+
+export  default  App;
+```
