@@ -6,7 +6,7 @@ interface UseSlattParameters {
   validate?: (values: any) => any;
 }
 
-export const useSlatt = ({
+const useSlatt = ({
   initialValues,
   onSubmit,
   validate
@@ -59,3 +59,5 @@ export const useSlatt = ({
     handleSubmit
   };
 };
+
+export default useSlatt;
