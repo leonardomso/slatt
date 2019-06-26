@@ -49,13 +49,13 @@ const App = () => {
     handleChange,
     handleBlur,
     handleSubmit
-  } =  useSlatt({
+  } = useSlatt({
     initialValues,
-    onSubmit:  values  =>  console.log({  values  })
+    onSubmit: values => console.log({ values })
   });
 
   return  (
-    <form  onSubmit={handleSubmit} className="App">
+    <form onSubmit={handleSubmit} className="App">
       <h1>Custom Forms with Hooks</h1>
       
       <label>Name</label>
@@ -65,7 +65,7 @@ const App = () => {
         onChange={handleChange}
         value={values.name}
       />
-      <br  />
+      <br />
       
       <label>Lastname</label>
       <input
@@ -74,7 +74,7 @@ const App = () => {
         onChange={handleChange}
         value={values.lastName}
       />
-      <br  />
+      <br />
       
       <label>Age</label>
       <input
@@ -83,12 +83,12 @@ const App = () => {
         onChange={handleChange}
         value={values.age}
       />
-      <br  />
+      <br />
       
-      <button  type="submit">Submit</button>
+      <button type="submit">Submit</button>
     </form>
   );
 };
 
-export  default  App;
+export default App;
 ```
