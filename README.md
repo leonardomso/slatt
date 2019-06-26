@@ -21,7 +21,7 @@ Feel free to contribute though, the next step of this library is to add validate
 
 ## Getting Started
 
-To get it started, add `react-use-form-state` to your project:
+To get it started, add `slatt` to your project:
 
 ```
 npm install --save slatt
@@ -32,58 +32,62 @@ This library requires `react@^16.8.0` as a peer dependency.
 ## Usage
 
 ```jsx
-import  React  from  "react";
+import React from "react";
 import { useSlatt } from "slatt";
 
 const  initialValues  =  {
-	name:  "",
-	lastName:  "",
-	age:  0
+  name: "",
+  lastName: "",
+  age:  0
 };
 
-const  App  =  ()  =>  {
-	const {
-		values,
-		errors,
-		touched,
-		handleChange,
-		handleBlur,
-		handleSubmit
-	} =  useSlatt({
-		initialValues,
-		onSubmit:  values  =>  console.log({  values  })
-	});
+const App = () => {
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    handleSubmit
+  } =  useSlatt({
+    initialValues,
+    onSubmit:  values  =>  console.log({  values  })
+  });
 
-	return  (
-		<form  onSubmit={handleSubmit} className="App">
-			<h1>Custom Forms with Hooks</h1>
-			<label>Name</label>
-			<input
-				type="text"
-				name="name"
-				onChange={handleChange}
-				value={values.name}
-			/>
-			<br  />
-			<label>Lastname</label>
-			<input
-				type="text"
-				name="lastName"
-				onChange={handleChange}
-				value={values.lastName}
-			/>
-			<br  />
-			<label>Age</label>
-			<input
-				type="number"
-				name="age"
-				onChange={handleChange}
-				value={values.age}
-			/>
-			<br  />
-			<button  type="submit">Submit</button>
-		</form>
-	);
+  return  (
+    <form  onSubmit={handleSubmit} className="App">
+      <h1>Custom Forms with Hooks</h1>
+      
+      <label>Name</label>
+      <input
+        type="text"
+        name="name"
+        onChange={handleChange}
+        value={values.name}
+      />
+      <br  />
+      
+      <label>Lastname</label>
+      <input
+        type="text"
+        name="lastName"
+        onChange={handleChange}
+        value={values.lastName}
+      />
+      <br  />
+      
+      <label>Age</label>
+      <input
+        type="number"
+        name="age"
+        onChange={handleChange}
+        value={values.age}
+      />
+      <br  />
+      
+      <button  type="submit">Submit</button>
+    </form>
+  );
 };
 
 export  default  App;
