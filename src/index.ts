@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react';
 
 interface UseSlattParameters {
   initialValues: any;
@@ -6,11 +6,7 @@ interface UseSlattParameters {
   validate?: (values: any) => any;
 }
 
-const useSlatt = ({
-  initialValues,
-  onSubmit,
-  validate
-}: UseSlattParameters) => {
+export const useSlatt = ({ initialValues, onSubmit }: UseSlattParameters) => {
   const [values, setValues] = useState(initialValues || {});
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -54,10 +50,10 @@ const useSlatt = ({
     values,
     errors,
     touched,
+    onSubmitting,
+    onBlur,
     handleChange,
     handleBlur,
-    handleSubmit
+    handleSubmit,
   };
 };
-
-export default useSlatt;
