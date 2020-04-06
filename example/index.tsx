@@ -44,6 +44,7 @@ const App = () => {
   } = useSlatt({
     initialValues,
     onSubmit,
+    validationSchema,
   });
 
   return (

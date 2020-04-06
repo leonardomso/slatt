@@ -1,10 +1,10 @@
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useState } from 'react';
 
 import { SlattState, SlattConfig, SlattErrors } from './types';
 
 import { validateSlattSchema, formatSlattErrors } from './utils';
 
-export default function useSlatt<Values>({
+function useSlatt<Values>({
   initialValues,
   onSubmit,
   validationSchema,
@@ -14,16 +14,6 @@ export default function useSlatt<Values>({
   const [isValidating, setIsValidating] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-
-  const formMounted = useRef<boolean>(true);
-
-  useEffect(() => {
-    formMounted.current = true;
-
-    return () => {
-      formMounted.current = false;
-    };
-  }, []);
 
   const handleChange = (event: any) => {
     event.persist();
@@ -93,3 +83,5 @@ export default function useSlatt<Values>({
     handleSubmit,
   };
 }
+
+export default useSlatt;
