@@ -1,16 +1,16 @@
 import { useCallback, useState, useEffect, useRef } from 'react';
 
-import { SlattValues, SlattArguments, SlattErrors } from './types';
+import { SlattState, SlattConfig, SlattErrors } from './types';
 
 import { validateSlattSchema, formatSlattErrors } from './utils';
 
-export const useSlatt = ({
+export default function useSlatt<Values>({
   initialValues,
   onSubmit,
   validationSchema,
-}: SlattArguments) => {
-  const [values, setValues] = useState<SlattValues>(initialValues || {});
-  const [errors, setErrors] = useState<SlattErrors<SlattValues>>({});
+}: SlattConfig<Values>): SlattState<Values> {
+  const [values, setValues] = useState<Values>(initialValues);
+  const [errors, setErrors] = useState<SlattErrors<Values>>({});
   const [isValidating, setIsValidating] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -25,14 +25,7 @@ export const useSlatt = ({
     };
   }, []);
 
-  // Validate on mount.
-  // useEffect(() => {
-  //   if (formMounted.current === true) {
-  //     onValidateSchema(initialValues);
-  //   }
-  // }, [formMounted, onValidateSchema]);
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: any) => {
     event.persist();
     setValues({ ...values, [event.target.name]: event.target.value });
   };
@@ -72,10 +65,7 @@ export const useSlatt = ({
     }
 
     return new Promise(async (resolve, reject) => {
-      const isAsync = validateSlattSchema<SlattValues>(
-        validationSchema,
-        values
-      );
+      const isAsync = validateSlattSchema<Values>(validationSchema, values);
 
       try {
         const validationMethod = isAsync ? 'validate' : 'validateSync';
@@ -84,7 +74,7 @@ export const useSlatt = ({
         await validationSchema[validationMethod](values, { abortEarly: false });
         resolve();
       } catch (error) {
-        setErrors(formatSlattErrors<SlattValues>(error));
+        setErrors(formatSlattErrors<Values>(error));
         reject();
       } finally {
         if (isAsync) setIsValidating(false);
@@ -102,4 +92,4 @@ export const useSlatt = ({
     handleReset,
     handleSubmit,
   };
-};
+}

@@ -3,7 +3,16 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as Yup from 'yup';
 
-import { useSlatt } from '../src/index';
+import useSlatt from '../src/index';
+
+import {
+  AppContainer,
+  AppTitle,
+  FormContainer,
+  ButtonsContainer,
+  Button,
+  Input,
+} from './index.styles';
 
 const validationSchema = {
   email: Yup.string()
@@ -20,7 +29,7 @@ const App = () => {
     password: '',
   };
 
-  const onSubmit = (values: Object) => {
+  const onSubmit = (values: any) => {
     console.log('values -> ', values);
   };
 
@@ -35,31 +44,35 @@ const App = () => {
   } = useSlatt({
     initialValues,
     onSubmit,
-    validationSchema,
   });
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Slatt Example</h1>
-      <input
-        type="email"
-        name="email"
-        value={values.email}
-        onChange={handleChange}
-      />
-      {errors.email && <h1>{errors.email}</h1>}
-      <input
-        type="text"
-        name="password"
-        value={values.password}
-        onChange={handleChange}
-      />
-      {errors.password && <h1>{errors.password}</h1>}
-      <button type="reset" onClick={handleReset}>
-        Reset
-      </button>
-      <button type="submit">Submit</button>
-    </form>
+    <AppContainer>
+      <FormContainer onSubmit={handleSubmit}>
+        <AppTitle>🐍 Slatt Example</AppTitle>
+
+        <Input
+          type="email"
+          name="email"
+          value={values.email}
+          onChange={handleChange}
+        />
+
+        <Input
+          type="text"
+          name="password"
+          value={values.password}
+          onChange={handleChange}
+        />
+
+        <ButtonsContainer>
+          <Button type="reset" onClick={handleReset}>
+            Reset
+          </Button>
+          <Button type="submit">Submit</Button>
+        </ButtonsContainer>
+      </FormContainer>
+    </AppContainer>
   );
 };
 

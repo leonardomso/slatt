@@ -1,6 +1,6 @@
-import { Schema } from 'yup';
+import * as Yup from 'yup';
 
-import { SlattValues, SlattErrors } from './types';
+import { SlattErrors } from './types';
 
 export const isNull = (obj: any) => obj === null || obj === undefined;
 
@@ -17,7 +17,20 @@ export const isObject = (obj: any): obj is Object =>
 
 export const hasErrors = (errs: any) => isObject(errs) && !isEmpty(errs);
 
-export const formatSlattErrors = <Values extends SlattValues>(
+export const validateSlattSchema = <Values extends {}>(
+  schema: Yup.ObjectSchema<Values>,
+  values: Values
+): boolean => {
+  try {
+    schema.validateSync(values);
+  } catch (error) {
+    if (error.message.includes('Promise')) return true;
+  }
+
+  return false;
+};
+
+export const formatSlattErrors = <Values extends {}>(
   error: any
 ): SlattErrors<Values> => {
   const errors: any = {} as SlattErrors<Values>;
@@ -31,17 +44,4 @@ export const formatSlattErrors = <Values extends SlattValues>(
   }
 
   return errors;
-};
-
-export const validateSlattSchema = <Values extends SlattValues>(
-  schema: Schema<Values>,
-  values: Values
-): boolean => {
-  try {
-    schema.validateSync(values);
-  } catch (error) {
-    if (error.message.includes('Promise')) return true;
-  }
-
-  return false;
 };
