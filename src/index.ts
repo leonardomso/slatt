@@ -1,59 +1,105 @@
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 
-interface UseSlattParameters {
-  initialValues: any;
-  onSubmit: any;
-  validate?: (values: any) => any;
-}
+import { SlattValues, SlattArguments, SlattErrors } from './types';
 
-export const useSlatt = ({ initialValues, onSubmit }: UseSlattParameters) => {
-  const [values, setValues] = useState(initialValues || {});
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [onSubmitting, setOnSubmitting] = useState<boolean>(false);
-  const [onBlur, setOnBlur] = useState<boolean>(false);
+import { validateSlattSchema, formatSlattErrors } from './utils';
 
-  const formRendered = useRef(true);
+export const useSlatt = ({
+  initialValues,
+  onSubmit,
+  validationSchema,
+}: SlattArguments) => {
+  const [values, setValues] = useState<SlattValues>(initialValues || {});
+  const [errors, setErrors] = useState<SlattErrors<SlattValues>>({});
+  const [isValidating, setIsValidating] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
+  const formMounted = useRef<boolean>(true);
 
   useEffect(() => {
-    if (!formRendered.current) {
-      setValues(initialValues);
-      setErrors({});
-      setTouched({});
-      setOnSubmitting(false);
-      setOnBlur(false);
-    }
-    formRendered.current = false;
-  }, [initialValues]);
+    formMounted.current = true;
+
+    return () => {
+      formMounted.current = false;
+    };
+  }, []);
+
+  // Validate on mount.
+  // useEffect(() => {
+  //   if (formMounted.current === true) {
+  //     onValidateSchema(initialValues);
+  //   }
+  // }, [formMounted, onValidateSchema]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { target } = event;
-    const { name, value } = target;
     event.persist();
-    setValues({ ...values, [name]: value });
+    setValues({ ...values, [event.target.name]: event.target.value });
   };
 
-  const handleBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { target } = event;
-    const { name } = target;
-    setTouched({ ...touched, [name]: true });
-    setErrors({ ...errors });
-  };
+  const handleResetErrors = useCallback(() => {
+    setErrors({});
+  }, []);
 
-  const handleSubmit = (event: any) => {
-    if (event) event.preventDefault();
-    setErrors({ ...errors });
-    onSubmit({ values, errors });
-  };
+  const handleReset = useCallback(() => {
+    setValues(initialValues);
+    handleResetErrors();
+  }, [handleResetErrors, initialValues]);
+
+  const handleSubmit = useCallback(
+    async (event: any) => {
+      if (event) event.preventDefault();
+
+      if (validationSchema) {
+        try {
+          await onValidateSchema();
+        } catch (error) {
+          return;
+        }
+      }
+
+      setIsSubmitting(true);
+      await onSubmit(values);
+      setIsSubmitted(true);
+      setIsSubmitting(false);
+    },
+    [onSubmit, values]
+  );
+
+  const onValidateSchema = useCallback(() => {
+    if (!validationSchema) {
+      throw new Error('You need to provide a schema to validate.');
+    }
+
+    return new Promise(async (resolve, reject) => {
+      const isAsync = validateSlattSchema<SlattValues>(
+        validationSchema,
+        values
+      );
+
+      try {
+        const validationMethod = isAsync ? 'validate' : 'validateSync';
+        handleResetErrors();
+        if (isAsync) setIsValidating(true);
+        await validationSchema[validationMethod](values, { abortEarly: false });
+        resolve();
+      } catch (error) {
+        setErrors(formatSlattErrors<SlattValues>(error));
+        reject();
+      } finally {
+        if (isAsync) setIsValidating(false);
+      }
+    });
+  }, [validationSchema, values, handleResetErrors, setErrors]);
 
   return {
     values,
     errors,
-    touched,
-    onSubmitting,
-    onBlur,
+    isValidating,
+    isSubmitting,
+    isSubmitted,
     handleChange,
-    handleBlur,
+    handleReset,
     handleSubmit,
   };
 };
