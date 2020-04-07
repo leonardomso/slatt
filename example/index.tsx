@@ -14,14 +14,14 @@ import {
   Input,
 } from './index.styles';
 
-const validationSchema = {
+const validationSchema = Yup.object().shape({
   email: Yup.string()
-    .required('Email is required')
-    .email('Email is invalid'),
+    .email('Email is invalid')
+    .required('Email is required'),
   password: Yup.string()
     .required('Password is required')
     .min(8, 'Password min length is 8'),
-};
+});
 
 const App = () => {
   const initialValues = {
@@ -58,6 +58,7 @@ const App = () => {
           value={values.email}
           onChange={handleChange}
         />
+        {errors.email ? <h1>{errors.email}</h1> : null}
 
         <Input
           type="text"
@@ -65,6 +66,7 @@ const App = () => {
           value={values.password}
           onChange={handleChange}
         />
+        {errors.password ? <h1>{errors.password}</h1> : null}
 
         <ButtonsContainer>
           <Button type="reset" onClick={handleReset}>

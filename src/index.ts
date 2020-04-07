@@ -1,17 +1,16 @@
 import { useCallback, useState } from 'react';
 
-import { SlattState, SlattConfig, SlattErrors } from './types';
+import { SlattValues, SlattConfig, SlattState, SlattErrors } from './types';
 
-import { validateSlattSchema, formatSlattErrors } from './utils';
+import { formatSlattErrors } from './utils';
 
-function useSlatt<Values>({
+const useSlatt = <T extends SlattValues>({
   initialValues,
   onSubmit,
   validationSchema,
-}: SlattConfig<Values>): SlattState<Values> {
-  const [values, setValues] = useState<Values>(initialValues);
-  const [errors, setErrors] = useState<SlattErrors<Values>>({});
-  const [isValidating, setIsValidating] = useState<boolean>(false);
+}: SlattConfig<T>): SlattState<T> => {
+  const [values, setValues] = useState<T>(initialValues);
+  const [errors, setErrors] = useState<SlattErrors<T>>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
@@ -46,42 +45,32 @@ function useSlatt<Values>({
       setIsSubmitted(true);
       setIsSubmitting(false);
     },
-    [onSubmit, values]
+    [onSubmit, values, handleResetErrors]
   );
 
-  const onValidateSchema = useCallback(() => {
+  const onValidateSchema = useCallback(async () => {
     if (!validationSchema) {
       throw new Error('You need to provide a schema to validate.');
     }
 
-    return new Promise(async (resolve, reject) => {
-      const isAsync = validateSlattSchema<Values>(validationSchema, values);
-
-      try {
-        const validationMethod = isAsync ? 'validate' : 'validateSync';
-        handleResetErrors();
-        if (isAsync) setIsValidating(true);
-        await validationSchema[validationMethod](values, { abortEarly: false });
-        resolve();
-      } catch (error) {
-        setErrors(formatSlattErrors<Values>(error));
-        reject();
-      } finally {
-        if (isAsync) setIsValidating(false);
-      }
-    });
-  }, [validationSchema, values, handleResetErrors, setErrors]);
+    try {
+      await validationSchema
+        .validate(values, { abortEarly: false })
+        .catch(errors => formatSlattErrors<T>(errors, setErrors));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [validationSchema, values]);
 
   return {
     values,
     errors,
-    isValidating,
     isSubmitting,
     isSubmitted,
     handleChange,
     handleReset,
     handleSubmit,
   };
-}
+};
 
 export default useSlatt;

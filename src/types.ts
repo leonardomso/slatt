@@ -1,47 +1,25 @@
-import * as Yup from 'yup';
+import { Schema } from 'yup';
 
-export type SlattConfig<Values extends {}> = {
-  initialValues: Values;
-  onSubmit: (values: Values) => void;
-  validationSchema?: Yup.ObjectSchema<Values>;
+export interface SlattValues {
+  [key: string]: any;
+}
+
+export type SlattConfig<T extends SlattValues> = {
+  initialValues: T;
+  onSubmit: (values: T) => void;
+  validationSchema?: Schema<T>;
 };
 
-export type SlattErrors<Values> = {
-  [K in keyof Values]?: Values[K] extends object
-    ? SlattErrors<Values[K]>
-    : string;
+export type SlattErrors<T extends SlattValues> = {
+  [K in keyof T]?: T[K] extends object ? SlattErrors<T[K]> : string;
 };
 
-export type SlattState<Values> = {
-  values: Values;
-  errors: SlattErrors<Values>;
-  isValidating: boolean;
+export type SlattState<T extends SlattValues> = {
+  values: T;
+  errors: SlattErrors<T>;
   isSubmitting: boolean;
   isSubmitted: boolean;
   handleChange: (event: any) => void;
   handleReset: () => void;
-  handleSubmit: (values: Values) => void;
-};
-
-export type FormHooksConfig<Values extends {}> = {
-  initialValues: Values;
-  onSubmit: (values: Values) => void;
-  validationSchema?: Yup.ObjectSchema<Values>;
-};
-
-export type FormHooksErrors<Values> = {
-  [K in keyof Values]?: Values[K] extends object
-    ? FormHooksErrors<Values[K]>
-    : string;
-};
-
-export type FormHooksState<Values> = {
-  values: Values;
-  errors: SlattErrors<Values>;
-  isValidating: boolean;
-  isSubmitting: boolean;
-  isSubmitted: boolean;
-  handleChange: (event: any) => void;
-  handleReset: () => void;
-  handleSubmit: (values: Values) => void;
+  handleSubmit: (values: T) => void;
 };
