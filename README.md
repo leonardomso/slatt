@@ -15,9 +15,7 @@
 
 ## Another form library? Oh, please!
 
-I'm just trying to understand how to use custom hooks to deal with forms in React, I was boring so I thought "why not create another form library?".
-
-Feel free to contribute though, the next step of this library is to add validate, find a way that we can validate the object passed as `initialValues`.
+I'm just trying to understand how to use custom hooks to deal with forms in React, I was boring so I thought "why not create another form library?". Feel free to contribute.
 
 ## Getting Started
 
@@ -32,32 +30,42 @@ This library requires `react@^16.8.0` as a peer dependency.
 ## Usage
 
 ```jsx
-import React from "react";
-import { useSlatt } from "slatt";
+import React from 'react';
+import useSlatt from 'slatt';
 
-const  initialValues  =  {
-  name: "",
-  lastName: "",
-  age:  0
+const initialValues = {
+  name: '',
+  lastName: '',
+  age: 0,
 };
 
 const App = () => {
+  const validationSchema = Yup.object().shape({
+    email: Yup.string()
+      .email('Email is invalid')
+      .required('Email is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(8, 'Password min length is 8'),
+  });
+
   const {
     values,
     errors,
     touched,
     handleChange,
     handleBlur,
-    handleSubmit
+    handleSubmit,
   } = useSlatt({
     initialValues,
-    onSubmit: values => console.log({ values })
+    onSubmit: values => console.log({ values }),
+    validationSchema,
   });
 
-  return  (
+  return (
     <form onSubmit={handleSubmit} className="App">
-      <h1>Custom Forms with Hooks</h1>
-      
+      <h1>🐍 Slatt</h1>
+
       <label>Name</label>
       <input
         type="text"
@@ -65,26 +73,17 @@ const App = () => {
         onChange={handleChange}
         value={values.name}
       />
-      <br />
-      
-      <label>Lastname</label>
+      {errors.email ? <h1>{errors.email}</h1> : null}
+
+      <label>Password</label>
       <input
         type="text"
-        name="lastName"
+        name="password"
         onChange={handleChange}
-        value={values.lastName}
+        value={values.password}
       />
-      <br />
-      
-      <label>Age</label>
-      <input
-        type="number"
-        name="age"
-        onChange={handleChange}
-        value={values.age}
-      />
-      <br />
-      
+      {errors.password ? <h1>{errors.password}</h1> : null}
+
       <button type="submit">Submit</button>
     </form>
   );

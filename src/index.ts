@@ -1,59 +1,76 @@
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState } from 'react';
 
-interface UseSlattParameters {
-  initialValues: any;
-  onSubmit: any;
-  validate?: (values: any) => any;
-}
+import { SlattValues, SlattConfig, SlattState, SlattErrors } from './types';
 
-export const useSlatt = ({ initialValues, onSubmit }: UseSlattParameters) => {
-  const [values, setValues] = useState(initialValues || {});
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [onSubmitting, setOnSubmitting] = useState<boolean>(false);
-  const [onBlur, setOnBlur] = useState<boolean>(false);
+import { formatSlattErrors } from './utils';
 
-  const formRendered = useRef(true);
+const useSlatt = <T extends SlattValues>({
+  initialValues,
+  onSubmit,
+  validationSchema,
+}: SlattConfig<T>): SlattState<T> => {
+  const [values, setValues] = useState<T>(initialValues);
+  const [errors, setErrors] = useState<SlattErrors<T>>({});
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!formRendered.current) {
-      setValues(initialValues);
-      setErrors({});
-      setTouched({});
-      setOnSubmitting(false);
-      setOnBlur(false);
-    }
-    formRendered.current = false;
-  }, [initialValues]);
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { target } = event;
-    const { name, value } = target;
+  const handleChange = (event: any) => {
     event.persist();
-    setValues({ ...values, [name]: value });
+    setValues({ ...values, [event.target.name]: event.target.value });
   };
 
-  const handleBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { target } = event;
-    const { name } = target;
-    setTouched({ ...touched, [name]: true });
-    setErrors({ ...errors });
-  };
+  const handleResetErrors = useCallback(() => {
+    setErrors({});
+  }, []);
 
-  const handleSubmit = (event: any) => {
-    if (event) event.preventDefault();
-    setErrors({ ...errors });
-    onSubmit({ values, errors });
-  };
+  const handleReset = useCallback(() => {
+    setValues(initialValues);
+    handleResetErrors();
+  }, [handleResetErrors, initialValues]);
+
+  const handleSubmit = useCallback(
+    async (event: any) => {
+      if (event) event.preventDefault();
+
+      if (validationSchema) {
+        try {
+          await onValidateSchema();
+        } catch (error) {
+          return;
+        }
+      }
+
+      setIsSubmitting(true);
+      await onSubmit(values);
+      setIsSubmitted(true);
+      setIsSubmitting(false);
+    },
+    [onSubmit, values, handleResetErrors]
+  );
+
+  const onValidateSchema = useCallback(async () => {
+    if (!validationSchema) {
+      throw new Error('You need to provide a schema to validate.');
+    }
+
+    try {
+      await validationSchema
+        .validate(values, { abortEarly: false })
+        .catch(errors => formatSlattErrors<T>(errors, setErrors));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [validationSchema, values]);
 
   return {
     values,
     errors,
-    touched,
-    onSubmitting,
-    onBlur,
+    isSubmitting,
+    isSubmitted,
     handleChange,
-    handleBlur,
+    handleReset,
     handleSubmit,
   };
 };
+
+export default useSlatt;
