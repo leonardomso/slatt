@@ -1,6 +1,6 @@
 {
   "name": "slatt",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "dist/index.js",
   "module": "dist/reform.esm.js",
   "typings": "dist/index.d.ts",
